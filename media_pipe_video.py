@@ -31,9 +31,6 @@ img_color = cv2.imread(image_name,cv2.IMREAD_COLOR)
 print(img_color.shape)
 height, width, _ = img_color.shape
 
-#######3
-#img_color = resize_and_show(img_color)
-
 print(img_color.shape)
 
 #image size
@@ -56,7 +53,6 @@ min_detection_confidence=0.5, model_selection=0) as face_detection:
         for face in (face_detection_results.detections):
             
             # Display the face number upon which we are iterating upon.
-            #print(f'FACE NUMBER: {face_no+1}')
             print('---------------------------------')
             
             # Display the face confidence.
@@ -110,7 +106,6 @@ min_detection_confidence=0.5, model_selection=0) as face_detection:
                 xbottom = int(xbottom) + image_margin +300
                 print(f'Esquina inferior, coor Y: {xbottom}')
                 f.write(str(xbottom) + '\n')
-
 
                 detected_faces = [(xleft, xtop, xright, xbottom)]
                 detected_faces_wr = xleft, xtop, xright, xbottom

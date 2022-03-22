@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--model_weights', type=str, help='model weights', default='./models/gaze_follow/model_demo.pt')
 parser.add_argument('--image_dir', type=str, help='images', default='data/demo/frames')
 parser.add_argument('--head', type=str, help='head bounding boxes', default='data/demo/person1.txt')
-parser.add_argument('--vis_mode', type=str, help='heatmap or arrow', default='arrow')
+parser.add_argument('--vis_mode', type=str, help='heatmap or arrow', default='heatmap')
 parser.add_argument('--out_threshold', type=int, help='out-of-frame target dicision threshold', default=100)
 args = parser.parse_args()
 
@@ -83,8 +83,10 @@ def run():
             inout = inout.cpu().detach().numpy()
             inout = 1 / (1 + np.exp(-inout))
             inout = (1 - inout) * 255
+            cp_raw_hm = raw_hm
             #norm_map = imresize(raw_hm, (height, width)) - inout
-            norm_map = cv2.resize(raw_hm,(height, width)) - inout
+            norm_map = cv2.resize(cp_raw_hm,(width, height)) - inout
+            #norm_map = cp_raw_hm #- inout
 
             # vis
             plt.close()
