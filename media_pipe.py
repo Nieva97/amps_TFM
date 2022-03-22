@@ -20,21 +20,8 @@ def resize_and_show(image):
         img = cv2.resize(image, (math.floor(w/(h/DESIRED_HEIGHT)), DESIRED_HEIGHT))
     #return img
     
-
-mp_face_detection = mp.solutions.face_detection
-# Prepare DrawingSpec for drawing the face landmarks later.
-mp_drawing = mp.solutions.drawing_utils 
-drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
-
-image_name = 'itsme.jpg'
+image_name = './data/imagenes/29425711-28488728.jpg'
 img_color = cv2.imread(image_name,cv2.IMREAD_COLOR)
-print(img_color.shape)
-height, width, _ = img_color.shape
-
-#######3
-#img_color = resize_and_show(img_color)
-
-print(img_color.shape)
 
 #image size
 h, w, c = img_color.shape
@@ -42,6 +29,7 @@ print('width:  ', w)
 print('height: ', h)
 
 #Detection
+mp_face_detection = mp.solutions.face_detection
 with mp_face_detection.FaceDetection(
 min_detection_confidence=0.5, model_selection=0) as face_detection:
  
@@ -85,7 +73,7 @@ min_detection_confidence=0.5, model_selection=0) as face_detection:
             # Crop the face 
             image_margin = 200
             data = face_data.relative_bounding_box
-            plus_wide = 300
+            plus_wide = w * 0.2
 
             # Write & calculate labels
             with open('labels_media_pipe_video_original.txt', 'a') as f:
@@ -124,10 +112,11 @@ min_detection_confidence=0.5, model_selection=0) as face_detection:
                     plt.show()
                     #plt.savefig('name.png') #save as jpg
                     #plt.imsave('aaaaaaaa',face)
-
+    else:
+        print("no hay nada")
 #Mostrar y guardar
-plt.imshow(annotated_image)
-plt.show()
+#plt.imshow(annotated_image)
+#plt.show()
 
 
 
