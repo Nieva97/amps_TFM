@@ -106,26 +106,42 @@ class ModelSpatial(nn.Module):
         super(ModelSpatial, self).__init__()
         # common
         self.relu = nn.ReLU(inplace=True)
+        # Método de activación relu: rectifiedlinear Unit
+        # https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU
+
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        # Kernel size: el tamaño de la "ventana"
+        # Stride: cuanto "salta" la ventana
+        # Padding: el relleno de ceros que metes en los bordes de la imagen
+
         self.avgpool = nn.AvgPool2d(7, stride=1)
+        # Te hace un downsampling con tamaño ventana de 7
 
         # scene pathway
         self.conv1_scene = nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        # in_channels, out_channels
+
         self.bn1_scene = nn.BatchNorm2d(64)
+        # Batch Norm is a normalization technique done between the layers of a Neural Network instead of in the raw data
+        # It is done along mini-batches instead of the full data set. It serves to speed up training and use higher
+        # learning rates, making learning easier. is applied to the neurons’ output just before applying the activation
+        # function.
+
+        # No acabo de entender como funcionan los layers ¡¡¡¡¡
         self.layer1_scene = self._make_layer_scene(block, 64, layers_scene[0])
         self.layer2_scene = self._make_layer_scene(block, 128, layers_scene[1], stride=2)
         self.layer3_scene = self._make_layer_scene(block, 256, layers_scene[2], stride=2)
         self.layer4_scene = self._make_layer_scene(block, 512, layers_scene[3], stride=2)
-        self.layer5_scene = self._make_layer_scene(block, 256, layers_scene[4], stride=1) # additional to resnet50
+        self.layer5_scene = self._make_layer_scene(block, 256, layers_scene[4], stride=1)   # additional to resnet50
 
         # face pathway
-        self.conv1_face = nn.Conv2d(3, 64, kernel_size = 7, stride = 2, padding = 3, bias = False)
+        self.conv1_face = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1_face = nn.BatchNorm2d(64)
         self.layer1_face = self._make_layer_face(block, 64, layers_face[0])
         self.layer2_face = self._make_layer_face(block, 128, layers_face[1], stride=2)
         self.layer3_face = self._make_layer_face(block, 256, layers_face[2], stride=2)
         self.layer4_face = self._make_layer_face(block, 512, layers_face[3], stride=2)
-        self.layer5_face = self._make_layer_face(block, 256, layers_face[4], stride=1) # additional to resnet50
+        self.layer5_face = self._make_layer_face(block, 256, layers_face[4], stride=1)  # additional to resnet50
 
         # attention
         self.attn = nn.Linear(1808, 1*7*7)
@@ -195,7 +211,6 @@ class ModelSpatial(nn.Module):
 
         return nn.Sequential(*layers)
 
-
     def forward(self, images, head, face):
         face = self.conv1_face(face)
         face = self.bn1_face(face)
@@ -214,7 +229,7 @@ class ModelSpatial(nn.Module):
         # get and reshape attention weights such that it can be multiplied with scene feature map
         attn_weights = self.attn(torch.cat((head_reduced, face_feat_reduced), 1))
         attn_weights = attn_weights.view(-1, 1, 49)
-        attn_weights = F.softmax(attn_weights, dim=2) # soft attention weights single-channel
+        attn_weights = F.softmax(attn_weights, dim=2)   # soft attention weights single-channel
         attn_weights = attn_weights.view(-1, 1, 7, 7)
 
         im = torch.cat((images, head), dim=1)
@@ -228,7 +243,8 @@ class ModelSpatial(nn.Module):
         im = self.layer4_scene(im)
         scene_feat = self.layer5_scene(im)
         # attn_weights = torch.ones(attn_weights.shape)/49.0
-        attn_applied_scene_feat = torch.mul(attn_weights, scene_feat) # (N, 1, 7, 7) # applying attention weights on scene feat
+        attn_applied_scene_feat = torch.mul(attn_weights, scene_feat)
+        # (N, 1, 7, 7) # applying attention weights on scene feat
 
         scene_face_feat = torch.cat((attn_applied_scene_feat, face_feat), 1)
 
