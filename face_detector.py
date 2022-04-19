@@ -17,9 +17,9 @@ def resize_and_show(image):
         img = cv.resize(image, (DESIRED_WIDTH, math.floor(h / (w / DESIRED_WIDTH))))
     else:
         img = cv.resize(image, (math.floor(w / (h / DESIRED_HEIGHT)), DESIRED_HEIGHT))
-        print(img.shape)
-        cv.imshow("Display window", image)
-        k = cv.waitKey(0)
+        # print(img.shape)
+        # cv.imshow("Display window", image)
+        # k = cv.waitKey(0)
     return img
 
 
@@ -37,14 +37,14 @@ image_list = os.listdir(image_dir)
 image_list.sort()
 
 # Figura
-fig = plt.figure()
+# fig = plt.figure()
 det = 0
 
 for i in image_list:
     # frame_raw = Image.open(os.path.join(image_dir, i))
     # frame_raw = frame_raw.convert('RGB')
     image = cv.imread(os.path.join(image_dir, i))
-    # cv.imshow("Display window", frame_raw)
+    # cv.imshow("Display window", image)
     # k = cv.waitKey(0)
     print(i)
 
@@ -53,18 +53,21 @@ for i in image_list:
     image = resize_and_show(image)
 
     # Mostrar
-    plt.clf()
+    # plt.clf()
     # clear figure: asi no va dando saltos la imagen
 
     with mp_face_detection.FaceDetection(min_detection_confidence=0.4, model_selection=0) as face_detection:
         face_detection_results = face_detection.process(image)
         # Draw face detections of each face.
+
+        annotated_image = image.copy()
         if face_detection_results.detections:
-            annotated_image = image.copy()
+            # annotated_image = image.copy()
             for face in (face_detection_results.detections):
                 # Display the face number upon which we are iterating upon.
                 print('---------------------------------')
 
+                mp_drawing.draw_detection(annotated_image, face)
                 # Display the face confidence.
                 print(f'FACE CONFIDENCE: {round(face.score[0], 2)}')
 
@@ -127,9 +130,8 @@ for i in image_list:
                     """plt.imshow(crop_image)
                     plt.show()"""
 
-    cv.imshow("Display window", image)
-
-
+        cv.imshow("Display window", annotated_image)
+        k = cv.waitKey(20)  # 25 fps -> 40
 
 
 

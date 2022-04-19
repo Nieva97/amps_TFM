@@ -4,6 +4,7 @@
 import argparse
 import os
 import cv2
+import math
 import torch
 # import torch.nn as nn
 # import torch.nn.functional as F
@@ -52,7 +53,7 @@ parser.add_argument('--vis_mode', type=str, help='heatmap or arrow', default='ar
 parser.add_argument('--out_threshold', type=int, help='out-of-frame target dicision threshold', default=100)
 
 parser.add_argument('--save_fig', type=int, help='guarda las imag', default=0)
-parser.add_argument('--results_dir', type=str, help='posicion de las labels', default='resultados/primer_run_avocado/')
+parser.add_argument('--results_dir', type=str, help='posicion de las labels', default='resultados/primer_run_avocado_hm/')
 parser.add_argument('--iou_punto', type=int, help='mira a un objeto detectado', default=1)
 parser.add_argument('--label_dir', type=str, help='posicion de las labels', default='/home/alvaro.nieva/Documents'
                                                                                     '/yolov5/runs/detect'
@@ -207,6 +208,10 @@ def run():
                             titulo = 'Está mirando a: ' + zona
                             ax.set_title(titulo, fontsize=15)
 
+            # str(inout)
+            fig.suptitle(str(inout), fontsize=14, fontweight='bold')
+
+            # Pintar la flecha o el heat map
             if args.vis_mode == 'arrow':
                 if inout < args.out_threshold:  # in-frame gaze, va de 0 a 255, con un treshold de 100
                     # bola amarilla
